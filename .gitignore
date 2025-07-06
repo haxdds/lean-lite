@@ -144,7 +144,6 @@ cython_debug/
 # Lean-Lite specific
 logs/
 *.log
-data/
 backtests/
 results/
 .env.local
