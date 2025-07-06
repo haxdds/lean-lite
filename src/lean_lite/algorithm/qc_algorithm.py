@@ -91,6 +91,9 @@ class QCAlgorithm(BaseAlgorithm):
     
     This class provides a familiar interface for users coming from QuantConnect,
     with methods that match the QuantConnect Python API.
+    
+    Both PascalCase (QuantConnect style) and snake_case (Python convention) method names
+    are supported for maximum compatibility and flexibility.
     """
     
     def __init__(self):
@@ -481,4 +484,59 @@ class QCAlgorithm(BaseAlgorithm):
         """
         ticker = symbol.ticker if isinstance(symbol, Symbol) else symbol
         self.benchmark_symbol = ticker
-        self.logger.info(f"Benchmark set to: {ticker}") 
+        self.logger.info(f"Benchmark set to: {ticker}")
+    
+    # Snake_case method aliases for Python convention compatibility
+    def set_start_date(self, year: int, month: int, day: int):
+        return self.SetStartDate(year, month, day)
+    
+    def set_end_date(self, year: int, month: int, day: int):
+        return self.SetEndDate(year, month, day)
+    
+    def set_cash(self, cash: float):
+        return self.SetCash(cash)
+    
+    def add_equity(self, ticker: str) -> Symbol:
+        return self.AddEquity(ticker)
+    
+    def add_forex(self, ticker: str) -> Symbol:
+        return self.AddForex(ticker)
+    
+    def add_crypto(self, ticker: str) -> Symbol:
+        return self.AddCrypto(ticker)
+    
+    def buy(self, symbol: Union[str, Symbol], quantity: int):
+        return self.Buy(symbol, quantity)
+    
+    def sell(self, symbol: Union[str, Symbol], quantity: int):
+        return self.Sell(symbol, quantity)
+    
+    def market_order(self, symbol: Union[str, Symbol], quantity: int, price: Optional[float] = None):
+        return self.MarketOrder(symbol, quantity, price)
+    
+    def limit_order(self, symbol: Union[str, Symbol], quantity: int, limit_price: float):
+        return self.LimitOrder(symbol, quantity, limit_price)
+    
+    def set_holdings(self, symbol: Union[str, Symbol], percentage: float):
+        return self.SetHoldings(symbol, percentage)
+    
+    def liquidate(self, symbol: Union[str, Symbol]):
+        return self.Liquidate(symbol)
+    
+    def get_last_known_price(self, symbol: Union[str, Symbol]) -> float:
+        return self.GetLastKnownPrice(symbol)
+    
+    def update_security_price(self, ticker: str, price: float, volume: int = 0):
+        return self.UpdateSecurityPrice(ticker, price, volume)
+    
+    def set_benchmark(self, symbol: Union[str, Symbol]):
+        return self.SetBenchmark(symbol)
+    
+    def log(self, message: str):
+        return self.Log(message)
+    
+    def debug(self, message: str):
+        return self.Debug(message)
+    
+    def error(self, message: str):
+        return self.Error(message) 
