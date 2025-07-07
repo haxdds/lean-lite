@@ -1,6 +1,6 @@
 # Lean-Lite
 
-A lightweight, containerized QuantConnect LEAN runtime focused on live trading with Alpaca integration.
+A lightweight, containerized QuantConnect LEAN runtime focused on live trading with Alpaca integration. Was motivated to build this after trying to wrestle with the 12.1GB Official LEAN image by QC.
 
 ## Overview
 
