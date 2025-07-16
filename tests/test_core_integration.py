@@ -5,6 +5,7 @@ import logging
 from datetime import datetime, timedelta
 from unittest.mock import Mock, patch
 from typing import Dict, Any
+from decimal import Decimal
 
 from lean_lite.algorithm.qc_algorithm import QCAlgorithm
 from lean_lite.algorithm.data_models import (
@@ -91,6 +92,58 @@ class MockBroker(BaseBroker):
         """Check connection status."""
         return self.connected
     
+    def market_order(self, symbol: str, quantity: int, side: str):
+        """Place a market order.
+        
+        Args:
+            symbol (str): The symbol to trade
+            quantity (int): Number of shares/contracts
+            side (str): 'buy' or 'sell'
+        """
+        order = Mock()
+        order.id = len(self.orders) + 1
+        order.symbol = symbol
+        order.quantity = quantity if side == 'buy' else -quantity
+        order.side = side
+        self.orders.append(order)
+        return order
+
+    def limit_order(self, symbol: str, quantity: int, limit_price: Decimal, side: str):
+        """Place a limit order.
+        
+        Args:
+            symbol (str): The symbol to trade
+            quantity (int): Number of shares/contracts 
+            limit_price (Decimal): Limit price
+            side (str): 'buy' or 'sell'
+        """
+        order = Mock()
+        order.id = len(self.orders) + 1
+        order.symbol = symbol
+        order.quantity = quantity if side == 'buy' else -quantity
+        order.side = side
+        order.limit_price = limit_price
+        self.orders.append(order)
+        return order
+
+    def stop_order(self, symbol: str, quantity: int, stop_price: Decimal, side: str):
+        """Place a stop order.
+        
+        Args:
+            symbol (str): The symbol to trade
+            quantity (int): Number of shares/contracts
+            stop_price (Decimal): Stop trigger price
+            side (str): 'buy' or 'sell'
+        """
+        order = Mock()
+        order.id = len(self.orders) + 1
+        order.symbol = symbol
+        order.quantity = quantity if side == 'buy' else -quantity
+        order.side = side
+        order.stop_price = stop_price
+        self.orders.append(order)
+        return order
+    
     def buy(self, symbol: str, quantity: int):
         """Place a buy order."""
         # Simple validation - assume $100 per share for testing
@@ -146,6 +199,8 @@ class MockBroker(BaseBroker):
     def get_account_info(self) -> Dict[str, Any]:
         """Mock account info."""
         return self.get_account()
+    
+    
 
 
 class TestCoreIntegration:

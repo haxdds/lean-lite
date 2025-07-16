@@ -24,35 +24,40 @@ class BaseBroker(ABC):
         pass
         
     @abstractmethod
-    def market_buy(self, symbol: str, quantity: int):
-        """Place a market buy order."""
-        pass
+    def market_order(self, symbol: str, quantity: int, side: str):
+        """Place a market order.
         
-    @abstractmethod 
-    def market_sell(self, symbol: str, quantity: int):
-        """Place a market sell order."""
+        Args:
+            symbol (str): The symbol to trade
+            quantity (int): Number of shares/contracts
+            side (str): 'buy' or 'sell'
+        """
         pass
-        
+
     @abstractmethod
-    def limit_buy(self, symbol: str, quantity: int, limit_price: Decimal):
-        """Place a limit buy order."""
-        pass
+    def limit_order(self, symbol: str, quantity: int, limit_price: Decimal, side: str):
+        """Place a limit order.
         
+        Args:
+            symbol (str): The symbol to trade
+            quantity (int): Number of shares/contracts 
+            limit_price (Decimal): Limit price
+            side (str): 'buy' or 'sell'
+        """
+        pass
+
     @abstractmethod
-    def limit_sell(self, symbol: str, quantity: int, limit_price: Decimal):
-        """Place a limit sell order."""
-        pass
+    def stop_order(self, symbol: str, quantity: int, stop_price: Decimal, side: str):
+        """Place a stop order.
         
-    @abstractmethod
-    def stop_buy(self, symbol: str, quantity: int, stop_price: Decimal):
-        """Place a stop buy order."""
+        Args:
+            symbol (str): The symbol to trade
+            quantity (int): Number of shares/contracts
+            stop_price (Decimal): Stop trigger price
+            side (str): 'buy' or 'sell'
+        """
         pass
-        
-    @abstractmethod
-    def stop_sell(self, symbol: str, quantity: int, stop_price: Decimal):
-        """Place a stop sell order."""
-        pass
-        
+
     @abstractmethod
     def get_account(self) -> Dict[str, Any]:
         """Get account information."""
