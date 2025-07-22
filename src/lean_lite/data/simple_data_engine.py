@@ -17,6 +17,12 @@ from typing import Dict, List, Optional, Any
 from lean_lite.algorithm.data_models import TradeBar, Resolution, Symbol, SecurityType, Market
 from lean_lite.config import Config
 
+# Conditional import for AlpacaData to avoid dependency issues
+try:
+    from .alpaca_data import AlpacaData
+except ImportError:
+    AlpacaData = None
+
 
 class SimpleCache:
     """Simple in-memory cache with expiry."""
@@ -25,14 +31,17 @@ class SimpleCache:
         self.data = {}
         self.timestamps = {}
     
-    def get(self, key: str, ttl: int = 3600) -> Optional[Any]:
+    def get(self, key: str) -> Optional[Any]:
         """Get value from cache if not expired."""
         if key not in self.data:
             return None
         
-        if time.time() - self.timestamps[key] > ttl:
+        # Check if expired
+        if time.time() - self.timestamps[key] > self.data.get(f"{key}_ttl", 3600):
             del self.data[key]
             del self.timestamps[key]
+            if f"{key}_ttl" in self.data:
+                del self.data[f"{key}_ttl"]
             return None
         
         return self.data[key]
@@ -41,6 +50,7 @@ class SimpleCache:
         """Store value in cache with expiry."""
         self.data[key] = value
         self.timestamps[key] = time.time()
+        self.data[f"{key}_ttl"] = ttl
     
     def clear(self):
         """Clear all cached data."""
@@ -53,6 +63,7 @@ def validate_basic_data(data) -> bool:
     if data is None:
         return False
     
+    # Check for negative prices
     if hasattr(data, 'Close') and data.Close <= 0:
         return False
     
@@ -65,8 +76,20 @@ def validate_basic_data(data) -> bool:
     if hasattr(data, 'Low') and data.Low <= 0:
         return False
     
+    # Check for negative volume
     if hasattr(data, 'Volume') and data.Volume < 0:
         return False
+    
+    # Check that Low <= min(Open, Close) and High >= max(Open, Close)
+    if hasattr(data, 'Open') and hasattr(data, 'Close') and hasattr(data, 'Low') and hasattr(data, 'High'):
+        min_price = min(data.Open, data.Close)
+        max_price = max(data.Open, data.Close)
+        
+        if data.Low > min_price:
+            raise ValueError("Low must be <= min(Open, Close)")
+        
+        if data.High < max_price:
+            raise ValueError("High must be >= max(Open, Close)")
     
     return True
 
@@ -118,7 +141,8 @@ class SimpleAlpacaFeed(SimpleDataFeed):
     
     def __init__(self, name: str, config: Config):
         super().__init__(name, config)
-        from lean_lite.data.alpaca_data import AlpacaData
+        if AlpacaData is None:
+            raise ImportError("AlpacaData is not available. Please install required dependencies.")
         self.alpaca_data = AlpacaData(config)
     
     def connect(self) -> bool:
@@ -172,7 +196,7 @@ class SimpleAlpacaFeed(SimpleDataFeed):
         try:
             # Check cache first
             cache_key = f"{symbol}_{start_date}_{end_date}_{resolution.value}"
-            cached_data = self.cache.get(cache_key, ttl=300)  # 5 minute cache
+            cached_data = self.cache.get(cache_key)  # Uses default TTL
             if cached_data:
                 return cached_data
             
@@ -289,7 +313,7 @@ class SimpleDataEngine:
         """Get historical data for symbol."""
         # Check cache first
         cache_key = f"hist_{symbol}_{start_date}_{end_date}_{resolution.value}"
-        cached_data = self.cache.get(cache_key, ttl=600)  # 10 minute cache
+        cached_data = self.cache.get(cache_key)  # Uses default TTL
         if cached_data:
             return cached_data
         

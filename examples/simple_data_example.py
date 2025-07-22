@@ -135,20 +135,22 @@ def demonstrate_validation():
     is_valid = validate_basic_data(valid_bar)
     print(f"Valid bar: {is_valid}")
     
-    # Create invalid data (negative price)
-    invalid_bar = TradeBar(
-        Symbol=symbol,
-        Time=datetime.now(),
-        Open=-100.0,  # Negative price
-        High=101.0,
-        Low=99.0,
-        Close=100.5,
-        Volume=1000,
-        Period=Resolution.MINUTE
-    )
-    
-    is_valid = validate_basic_data(invalid_bar)
-    print(f"Invalid bar (negative price): {is_valid}")
+    # Create invalid data (Low > min(Open, Close))
+    try:
+        invalid_bar = TradeBar(
+            Symbol=symbol,
+            Time=datetime.now(),
+            Open=100.0,
+            High=101.0,
+            Low=102.0,  # Low > min(Open, Close) = 100.0 (invalid)
+            Close=100.5,
+            Volume=1000,
+            Period=Resolution.MINUTE
+        )
+        is_valid = validate_basic_data(invalid_bar)
+        print(f"Invalid bar (Low > min(Open, Close)): {is_valid}")
+    except ValueError as e:
+        print(f"Invalid bar (Low > min(Open, Close)): Validation failed - {e}")
     
     # Test None data
     is_valid = validate_basic_data(None)

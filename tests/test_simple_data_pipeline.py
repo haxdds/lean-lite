@@ -130,32 +130,30 @@ class TestValidateBasicData:
     
     def test_negative_prices(self):
         """Test validation with negative prices."""
-        bar = TradeBar(
-            Symbol=self.symbol,
-            Time=datetime.now(),
-            Open=-100.0,  # Negative price
-            High=101.0,
-            Low=99.0,
-            Close=100.5,
-            Volume=1000,
-            Period=Resolution.MINUTE
-        )
+        # Create a mock object that simulates invalid data
+        class MockInvalidBar:
+            def __init__(self):
+                self.Open = -100.0  # Negative price
+                self.High = 101.0
+                self.Low = 99.0
+                self.Close = 100.5
+                self.Volume = 1000
         
+        bar = MockInvalidBar()
         assert validate_basic_data(bar) is False
     
     def test_negative_volume(self):
         """Test validation with negative volume."""
-        bar = TradeBar(
-            Symbol=self.symbol,
-            Time=datetime.now(),
-            Open=100.0,
-            High=101.0,
-            Low=99.0,
-            Close=100.5,
-            Volume=-1000,  # Negative volume
-            Period=Resolution.MINUTE
-        )
+        # Create a mock object that simulates invalid data
+        class MockInvalidBar:
+            def __init__(self):
+                self.Open = 100.0
+                self.High = 101.0
+                self.Low = 99.0
+                self.Close = 100.5
+                self.Volume = -1000  # Negative volume
         
+        bar = MockInvalidBar()
         assert validate_basic_data(bar) is False
 
 
